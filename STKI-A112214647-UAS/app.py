@@ -1,21 +1,18 @@
 import streamlit as st
-import pickle
+import joblib  # Pastikan joblib diimpor
 
 # Memuat model dan vectorizer dari file .pkl
-with open('xgb_model.pkl', 'rb') as model_file:
-    model = pickle.load(model_file)
-
-with open('vectorizer.pkl', 'rb') as vectorizer_file:
-    vectorizer = pickle.load(vectorizer_file)
+loaded_model = joblib.load('logistic_reg_model.pkl')  # Model Logistic Regression
+loaded_vectorizer = joblib.load('tfidf_vectorizer.pkl')  # TF-IDF Vectorizer
 
 # Fungsi utama aplikasi
 def main():
     # Judul Aplikasi
-    st.title("Sentiment Analysis Using XGBoost")
+    st.title("Sentiment Analysis Using Logistic Regression")
 
     # Deskripsi aplikasi
     st.write("""
-        Aplikasi ini melakukan analisis sentimen pada teks menggunakan model XGBoost yang telah dilatih.
+        Aplikasi ini melakukan analisis sentimen pada teks menggunakan model Logistic Regression yang telah dilatih.
         Masukkan teks untuk menganalisis apakah teks tersebut bersentimen **Positif** atau **Negatif**.
     """)
 
@@ -26,10 +23,10 @@ def main():
     if st.button("Analisis Sentimen"):
         if new_text:
             # Mengubah teks menjadi fitur menggunakan vectorizer
-            new_text_tfidf = vectorizer.transform([new_text])
+            new_text_tfidf = loaded_vectorizer.transform([new_text])
 
             # Melakukan prediksi dengan model
-            prediction = model.predict(new_text_tfidf)
+            prediction = loaded_model.predict(new_text_tfidf)
 
             # Menampilkan hasil prediksi
             if prediction == 1:
