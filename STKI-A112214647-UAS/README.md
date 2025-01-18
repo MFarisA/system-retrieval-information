@@ -104,7 +104,7 @@ Contoh dari dataset:
 
 Di bawah ini adalah visualisasi dari analisis sentimen pada komentar positif dan negatif menggunakan word clouds dan bar plots.
 
-![Visualisasi Analisis Sentimen](sandbox:image.jpeg)
+![Visualisasi Analisis Sentimen](image.jpeg)
 
 ---
 
