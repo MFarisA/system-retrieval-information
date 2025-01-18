@@ -9,3 +9,4 @@ emoji
 matplotlib
 wordcloud
 google-play-scraper
+streamlit
