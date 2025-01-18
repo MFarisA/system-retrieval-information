@@ -8,3 +8,4 @@ xgboost
 emoji
 matplotlib
 wordcloud
+google-play-scraper

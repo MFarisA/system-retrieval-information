@@ -1,235 +1,144 @@
 
-# Proyek Analisis Penyebab Rating Rendah dan Tinggi pada Ulasan Pengguna Game Genshin Impact di Google Play Store
+# Proyek Analisis Sentimen
 
-## Nama: Muhammad Faris Assami
-## NIM: A11.2022.14647
-## Kelas: A11-4504
+Proyek ini dirancang untuk melakukan analisis sentimen terhadap ulasan pengguna untuk aplikasi **Genshin Impact**. Proyek ini terdiri dari tiga notebook Jupyter utama, yang masing-masing bertanggung jawab untuk bagian tertentu dalam alur kerja: pengambilan data, pra-pemrosesan, dan prediksi.
 
-### Deskripsi Singkat
-Proyek ini bertujuan untuk menganalisis ulasan pengguna game "Genshin Impact" di Google Play Store, dengan fokus pada mengidentifikasi faktor-faktor yang menyebabkan rating rendah (1-2 bintang) dan tinggi (3-5 bintang).
+## Struktur Proyek
 
-## Ringkasan dan Permasalahan
+1. **serpAPI.ipynb**: Mengambil ulasan aplikasi dari Google Play Store menggunakan `google_play_scraper`.
+2. **pre-process.ipynb**: Mempersiapkan data yang diambil dengan membersihkan dan memproses teks, membuat word clouds, dan melatih model pembelajaran mesin untuk klasifikasi sentimen.
+3. **predict.ipynb**: Menggunakan model yang dilatih untuk memprediksi sentimen dari input teks baru.
 
-### Ringkasan:
-Eksperimen ini bertujuan untuk mengidentifikasi faktor-faktor yang menyebabkan rating rendah (1-2 bintang) dan tinggi (3-5 bintang) dalam ulasan pengguna game Genshin Impact di Google Play. Dengan menggunakan teknik text mining dan analisis data, proyek ini akan menggali pola-pola umum dalam ulasan untuk memberikan wawasan bagi pengembang terkait area yang perlu diperbaiki dan aspek yang disukai pengguna.
+---
 
-### Permasalahan:
-Game mobile, termasuk Genshin Impact, sering menerima ulasan dengan rentang rating yang bervariasi, namun pengembang sering kali kesulitan memahami secara rinci alasan spesifik di balik rating rendah atau tinggi. Ulasan pengguna bisa berisi berbagai topik, mulai dari keluhan teknis hingga pujian tentang gameplay.
+## 1. `serpAPI.ipynb` - Mengambil Ulasan
 
-### Tujuan:
-- Mengidentifikasi faktor-faktor utama yang mempengaruhi pengguna memberikan rating rendah atau tinggi berdasarkan isi ulasan (snippet).
-- Memberikan rekomendasi kepada pengembang tentang fitur atau aspek game yang perlu diperbaiki dan apa yang dihargai oleh pengguna.
+Notebook ini mengambil ulasan dari aplikasi **Genshin Impact** di Google Play Store menggunakan pustaka `google_play_scraper`.
 
-## Alur Kerja Proyek
+### Penjelasan Kode:
+- **Impor Pustaka**: Notebook ini mengimpor modul `csv` untuk menyimpan data dan pustaka `google_play_scraper` untuk mengambil ulasan aplikasi.
+- **Mengambil Ulasan**: Fungsi `reviews()` digunakan untuk mengumpulkan 1000 ulasan aplikasi Genshin Impact dari Google Play Store, dengan parameter yang menentukan ID aplikasi (`com.miHoYo.GenshinImpact`), bahasa (`en`), dan negara (`us`).
+- **Menyimpan Data**: Ulasan disimpan dalam file CSV (`genshin_impact_reviews.csv`). Kolom dalam CSV ini mencakup:
+  - `id`: ID Ulasan
+  - `title`: Nama pengguna yang mengulas
+  - `avatar`: Gambar avatar (tidak tersedia dalam dataset ini)
+  - `rating`: Rating (dari 1 hingga 5 bintang)
+  - `snippet`: Isi teks dari ulasan
+  - `likes`: Jumlah suka yang diterima ulasan
+  - `date`: Tanggal dan waktu saat ulasan diposting
+  - `iso_date`: Tanggal dalam format ISO 8601
+  - `response`: Tanggapan pengembang (jika ada)
 
-Alur kerja proyek ini terbagi menjadi tiga langkah utama, yang dijelaskan secara rinci berikut ini:
+### Output:
+Ulasan disimpan dalam file CSV bernama `genshin_impact_reviews.csv`.
 
-### 1. **Pengumpulan Data dengan SerpApi (serpapi-data.py)**
+---
 
-Langkah pertama adalah mengumpulkan data ulasan dari aplikasi "Genshin Impact" di Google Play Store menggunakan API SerpApi. API ini memungkinkan kita untuk mengakses data ulasan secara otomatis dengan mengirimkan permintaan menggunakan kunci API.
+## 2. `pre-process.ipynb` - Pra-pemrosesan dan Pelatihan Model
 
-#### **Langkah-langkah**:
-1. **Memuat Kunci API**:
-   - Kunci API disimpan dalam file `.env` dan dipanggil menggunakan pustaka `python-dotenv` untuk menjaga kerahasiaannya.
-   - Menggunakan `serpapi.Client` untuk mengonfigurasi klien dengan kunci API yang dimuat.
+Notebook ini memproses ulasan yang diambil, membersihkan teks, dan melatih model analisis sentimen.
 
-2. **Mendapatkan Data Ulasan**:
-   - Permintaan pencarian dikirim ke SerpApi dengan spesifikasi aplikasi dan jumlah ulasan yang ingin diambil. Dalam hal ini, aplikasi yang digunakan adalah "Genshin Impact", dan jumlah ulasan yang diambil adalah 199.
+### Penjelasan Kode:
+- **Memuat Data**: Memuat data ulasan dari file `genshin_impact_reviews.csv`.
+- **Pra-pemrosesan Teks**:
+  - Menghapus karakter yang tidak perlu (misalnya simbol khusus, URL).
+  - Men-tokenisasi teks ulasan dan menghapus kata-kata umum (stopwords).
+  - Melakukan lemmatization untuk mengubah kata menjadi bentuk dasar.
+- **Visualisasi**:
+  - **WordCloud**: Membuat word clouds untuk memvisualisasikan kata-kata yang paling sering muncul pada komentar positif dan negatif.
+  - **Bar Plot**: Membuat bar plot untuk menunjukkan 10 kata paling sering dalam komentar positif dan negatif.
+- **Pelatihan Model**:
+  - **TfidfVectorizer**: Mengubah teks yang sudah dibersihkan menjadi fitur numerik (nilai TF-IDF).
+  - **Model XGBoost**: Melatih model klasifikasi sentimen menggunakan **XGBoost** (algoritma gradient boosting).
+- **Menyimpan Model**:
+  - Menyimpan model yang telah dilatih (`xgb_model.pkl`).
+  - Menyimpan vectorizer (`vectorizer.pkl`) yang digunakan untuk mengubah data input baru.
 
-3. **Menyimpan Data**:
-   - Data ulasan yang diterima dari API kemudian disimpan dalam file CSV menggunakan pustaka `pandas`.
+### Output:
+Model yang dilatih dan vectorizer disimpan dalam file `.pkl`.
 
-#### **Kode Utama**:
-```python
-import serpapi
-import os
-import pandas as pd
-from dotenv import load_dotenv
+---
 
-load_dotenv()
+## 3. `predict.ipynb` - Prediksi
 
-api_key = os.getenv('SERPAPI_KEY')
-client = serpapi.Client(api_key=api_key)
+Notebook ini menggunakan model yang dilatih dan vectorizer untuk memprediksi sentimen dari input teks baru.
 
-results = client.search(
-    engine="google_play_product",
-    product_id="com.miHoYo.GenshinImpact",
-    store="apps",
-    all_reviews="true",
-    num=199
-)
+### Penjelasan Kode:
+- **Memuat Model dan Vectorizer**: Memuat model XGBoost yang dilatih (`xgb_model.pkl`) dan vectorizer (`vectorizer.pkl`) dari file `.pkl`.
+- **Prediksi**:
+  - Menerima input teks baru (misalnya, "good graphic").
+  - Mengubah input menggunakan vectorizer.
+  - Membuat prediksi menggunakan model yang dilatih (sentimen positif atau negatif).
+- **Output**:
+  - Menampilkan sentimen (positif atau negatif) dari teks yang diberikan.
 
-data = results['reviews']
-print("total reviews : ", len(results['reviews']))
+### Output:
+Hasil prediksi ditampilkan dalam sel output yang menunjukkan sentimen untuk teks yang diberikan.
 
-df = pd.DataFrame(data)
-df.to_csv('google-play-rev-gen-2.csv', index=False)
-```
+---
 
-### 2. **Pra-Pemrosesan Data (pre-process-data.ipynb)**
+## Dataset
 
-Langkah kedua adalah pra-pemrosesan data ulasan yang telah dikumpulkan. Di sini, ulasan dibersihkan dan disiapkan untuk analisis lebih lanjut.
-
-#### **Langkah-langkah**:
-1. **Pembersihan Data**:
-   - Menghapus URL, emoji, dan karakter non-alfabet.
-   - Menormalkan teks dengan mengubah semua huruf menjadi huruf kecil dan menghapus spasi berlebih.
-
-2. **Klasifikasi Rating**:
-   - Menggunakan logika untuk mengkategorikan ulasan ke dalam dua kelas: "positif" (untuk rating 3, 4, dan 5) dan "negatif" (untuk rating 1 dan 2).
-   
-3. **Lemmatization**:
-   - Menggunakan pustaka `spaCy` untuk melakukan lemmatization pada teks, yang bertujuan untuk mengubah kata-kata menjadi bentuk dasar mereka.
-
-4. **Menyimpan Data**:
-   - Data yang telah diproses disimpan dalam file CSV baru untuk digunakan dalam langkah berikutnya.
-
-#### **Kode Utama**:
-```python
-import pandas as pd
-import spacy
-import re
-
-# Load spaCy model
-nlp = spacy.load('en_core_web_sm')
-
-# Membaca dataset dengan pengecekan encoding
-df = pd.read_csv('google-play-rev-gen-2.csv', encoding='utf-8')
-
-# Pembersihan teks
-def clean_text(text):
-    text = re.sub(r'http\S+', '', text)
-    text = text.encode('ascii', 'ignore').decode('ascii')
-    text = re.sub(r'[^a-zA-Z\s]', '', text)
-    text = text.lower()
-    text = re.sub(r'\s+', ' ', text).strip()
-    return text
-
-df['cleaned_snippet'] = df['snippet'].apply(clean_text)
-df['rating_label'] = df['rating'].apply(lambda rating: 'positive' if rating in [3, 4, 5] else 'negative')
-
-df.to_csv('google-play-rev-gen-2-processed.csv', index=False)
-```
-
-### 3. **Analisis Data (analysis.ipynb)**
-
-Langkah terakhir adalah analisis data yang telah diproses. Di sini, kita menerapkan teknik ekstraksi fitur, pelatihan model pembelajaran mesin, dan evaluasi untuk mendapatkan wawasan sentimen dari data ulasan.
-
-#### **Langkah-langkah**:
-1. **Ekstraksi Fitur**:
-   - Menggunakan TF-IDF untuk mengubah teks menjadi vektor fitur numerik.
-   
-2. **Penyeimbangan Data**:
-   - Menerapkan ADASYN (Adaptive Synthetic Sampling) untuk mengatasi ketidakseimbangan kelas dalam data pelatihan.
-
-3. **Pelatihan Model SVM**:
-   - Melatih model Support Vector Machine (SVM) untuk klasifikasi sentimen.
-
-4. **Evaluasi Model**:
-   - Menggunakan metrik seperti akurasi, F1-score, dan matriks kebingungan untuk mengevaluasi kinerja model.
-
-#### **Kode Utama**:
-```python
-import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.svm import SVC
-from sklearn.metrics import classification_report, confusion_matrix
-from imblearn.over_sampling import ADASYN
-from collections import Counter
-
-# Load the processed data
-df = pd.read_csv('google-play-rev-gen-2-processed.csv')
-
-# Ekstraksi fitur
-X = df['cleaned_snippet']
-y = df['rating_label']
-
-# Membagi data ke dalam training dan testing set
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-# Penyeimbangan data menggunakan ADASYN
-adasyn = ADASYN(random_state=42)
-X_train_adasyn, y_train_adasyn = adasyn.fit_resample(X_train, y_train)
-
-# Melatih model SVM
-svm_model = SVC(kernel='rbf', C=1, gamma=0.1, class_weight='balanced', random_state=42)
-svm_model.fit(X_train_adasyn, y_train_adasyn)
-
-# Evaluasi model
-y_pred = svm_model.predict(X_test)
-print(classification_report(y_test, y_pred))
-print(confusion_matrix(y_test, y_pred))
-```
-
-## Persyaratan
-
-Berikut adalah daftar pustaka yang diperlukan untuk menjalankan proyek ini. Untuk menginstal semua pustaka secara otomatis, silakan jalankan perintah `pip install -r requirements.txt` di terminal.
-
-```
-pandas
-scikit-learn
-imblearn
-spacy
-textblob
-matplotlib
-seaborn
-wordcloud
-serpapi
-python-dotenv
-```
-
-
-## Cara Menjalankan
-
-### 1. Mengumpulkan Data
-   - Pastikan sudah memiliki file `.env` dengan kunci API SerpApi.
-   - Jalankan `serpapi-data.py` untuk mengunduh data ulasan dan menyimpannya dalam file CSV.
-
-### 2. Pra-Pemrosesan Data
-   - Jalankan `pre-process-data.ipynb` untuk membersihkan dan mempersiapkan data ulasan.
-
-### 3. Analisis Data
-   - Jalankan `analysis.ipynb` untuk melakukan analisis sentimen menggunakan model SVM dan mengevaluasi kinerjanya.
-
-
-## Penjelasan Dataset
-
-Dataset yang digunakan dalam proyek ini terdiri dari ulasan pengguna untuk game "Genshin Impact" yang diambil dari Google Play Store. Dataset ini mencakup beberapa informasi penting, seperti:
+Dataset ini terdiri dari ulasan pengguna untuk aplikasi **Genshin Impact** yang diambil dari Google Play Store. Dataset disimpan dalam format CSV dengan kolom-kolom berikut:
 
 - **id**: ID unik untuk setiap ulasan.
-- **title**: Nama pengguna atau judul ulasan.
-- **avatar**: URL gambar avatar pengguna.
-- **rating**: Skor rating yang diberikan oleh pengguna (dalam rentang 1-5).
-- **snippet**: Isi dari ulasan pengguna, yang berisi opini atau feedback terkait aplikasi.
-- **likes**: Jumlah suka (likes) yang diterima ulasan.
-- **date**: Tanggal ulasan diposting.
-- **iso_date**: Tanggal dalam format ISO 8601 (waktu standar internasional).
-- **response**: Respons dari Developer terhadap ulasan (dalam dataset ini sebagian besar kosong).
+- **title**: Nama pengguna yang memberikan ulasan.
+- **avatar**: Gambar avatar pengguna (tidak tersedia dalam dataset).
+- **rating**: Rating yang diberikan oleh pengguna (dari 1 hingga 5 bintang).
+- **snippet**: Isi teks dari ulasan.
+- **likes**: Jumlah suka yang diterima ulasan.
+- **date**: Tanggal dan waktu ulasan diposting.
+- **iso_date**: Tanggal dalam format ISO 8601.
+- **response**: Tanggapan pengembang terhadap ulasan (jika ada).
 
-## EDA dan Proses Features Dataset
+Contoh dari dataset:
 
-1. **Exploratory Data Analysis (EDA)**:
-   - Analisis distribusi rating pengguna (rating rendah dan tinggi).
-   - Visualisasi dan pembersihan teks ulasan untuk persiapan analisis lebih lanjut.
+| id                                | title                  | rating | snippet                                                                 | likes | date                  | response                      |
+|-----------------------------------|------------------------|--------|-------------------------------------------------------------------------|-------|-----------------------|-------------------------------|
+| 45b29182-3368-445f-8353-efc25383ea9f | Francesca Ashley Inguito | 1      | This was awful, the dialogue of characters in the game was terrible.   | 1     | 2025-01-12 17:37:21   | NaN                           |
+| 5baab1b9-0540-4ac3-90c9-1ee3462bdc73 | Ikmal Hariz            | 5      | MANYAK BAGUS LA I LIKE CUMA PLS CEPAT KAN SIKIT                       | 0     | 2025-01-12 02:42:05   | NaN                           |
 
-2. **Proses Features**:
-   - Ekstraksi fitur menggunakan teknik TF-IDF untuk mengubah teks ulasan menjadi vektor numerik.
-   - Klasifikasi rating berdasarkan teks ulasan (positif dan negatif).
+---
 
-## Proses Learning / Modeling
+## Visualisasi
 
-1. **Modeling**: 
-   - Menggunakan model Support Vector Machine (SVM) untuk klasifikasi sentimen ulasan.
-   - Model dilatih dengan data yang sudah diproses (dengan penyeimbangan kelas menggunakan ADASYN).
+Di bawah ini adalah visualisasi dari analisis sentimen pada komentar positif dan negatif menggunakan word clouds dan bar plots.
 
-2. **Evaluasi Model**:
-   - Menggunakan metrik evaluasi seperti akurasi, F1-score, dan matriks kebingungan untuk menilai kinerja model.
+![Visualisasi Analisis Sentimen](sandbox:image.jpeg)
 
-## Performa Model
+---
 
-Model SVM yang diterapkan berhasil memberikan evaluasi yang baik dengan skor akurasi yang memadai dan F1-score yang tinggi, menunjukkan bahwa model mampu membedakan ulasan dengan rating rendah dan tinggi dengan baik. Hasilnya bisa dilihat pada file `pre-process-data.ipynb`.
+## Prasyarat
 
-## Diskusi Hasil dan Kesimpulan
+Untuk menjalankan notebook-notebook ini, Anda perlu menginstal pustaka Python berikut:
+- `pandas`
+- `numpy`
+- `scikit-learn`
+- `imbalanced-learn`
+- `spacy`
+- `nltk`
+- `xgboost`
+- `emoji`
+- `matplotlib`
+- `wordcloud`
+- `google-play-scraper`
 
-- Hasil model menunjukkan bahwa ulasan dengan rating rendah sering kali mencakup keluhan teknis dan pengalaman buruk dengan gameplay, sementara ulasan dengan rating tinggi lebih fokus pada aspek positif seperti desain grafis, gameplay, dan pengalaman pengguna secara keseluruhan.
-- Developer dapat memanfaatkan wawasan ini untuk meningkatkan kualitas fitur yang lebih dihargai pengguna dan memperbaiki area yang sering dikeluhkan.
+Anda dapat menginstalnya menggunakan perintah berikut:
+```bash
+pip install pandas numpy scikit-learn imbalanced-learn spacy nltk xgboost emoji matplotlib wordcloud google-play-scraper
+```
+
+---
+
+## Menjalankan Proyek
+
+1. Mulailah dengan menjalankan `serpAPI.ipynb` untuk mengambil ulasan dan menyimpannya sebagai CSV.
+2. Kemudian jalankan `pre-process.ipynb` untuk memproses ulasan dan melatih model analisis sentimen.
+3. Terakhir, jalankan `predict.ipynb` untuk membuat prediksi sentimen pada teks baru.
+
+---
+
+## Kesimpulan
+
+Proyek ini mendemonstrasikan alur lengkap untuk melakukan analisis sentimen pada ulasan aplikasi, mulai dari pengambilan data dan pra-pemrosesan hingga pelatihan model dan prediksi. Model yang dilatih dapat digunakan kembali untuk menganalisis teks yang diberikan dan memprediksi apakah sentimennya positif atau negatif.
+
