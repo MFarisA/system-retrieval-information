@@ -1,7 +1,9 @@
 ## Nama : Muhammad Faris Assami
 ## NIM  : A11.2022.14647
 ## Kelas: STKI-A11-4701
-
+---
+### https://mfarisa-system-retrieval-informat-stki-a112214647-uasapp-onmwem.streamlit.app/
+---
 # Deteksi Sentimen pada Ulasan Game Genshin Impact di Google Play Store
 
 ### **Ringkasan**:
