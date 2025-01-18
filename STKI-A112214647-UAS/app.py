@@ -1,9 +1,14 @@
 import streamlit as st
-import joblib  # Pastikan joblib diimpor
+import joblib
+import os
+
+# Menentukan path file model dan vectorizer berdasarkan direktori file
+model_path = os.path.join(os.path.dirname(__file__), 'xgb_model.pkl')
+vectorizer_path = os.path.join(os.path.dirname(__file__), 'vectorizer.pkl')
 
 # Memuat model dan vectorizer dari file .pkl
-loaded_model = joblib.load('logistic_reg_model.pkl')  # Model Logistic Regression
-loaded_vectorizer = joblib.load('tfidf_vectorizer.pkl')  # TF-IDF Vectorizer
+loaded_model = joblib.load(model_path)
+loaded_vectorizer = joblib.load(vectorizer_path)
 
 # Fungsi utama aplikasi
 def main():
