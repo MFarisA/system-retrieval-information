@@ -146,7 +146,7 @@ Contoh dari dataset:
 
 Di bawah ini adalah visualisasi dari analisis sentimen pada komentar positif dan negatif menggunakan word clouds dan bar plots.
 
-![Visualisasi Analisis Sentimen](sandbox:image.jpeg)
+![Visualisasi Analisis Sentimen](image.jpeg)
 
 ---
 
@@ -181,7 +181,7 @@ pip install pandas numpy scikit-learn imbalanced-learn spacy nltk xgboost emoji 
 ---
 
 ## Performa Model
-![Visualisasi evaluasi](sandbox:image2.jpeg)
+![Visualisasi evaluasi](image2.jpeg)
 
 ---
 
