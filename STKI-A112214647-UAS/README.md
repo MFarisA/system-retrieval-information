@@ -88,6 +88,7 @@ Notebook ini memproses ulasan yang diambil, membersihkan teks, dan melatih model
   - Menghapus karakter yang tidak perlu (misalnya simbol khusus, URL).
   - Men-tokenisasi teks ulasan dan menghapus kata-kata umum (stopwords).
   - Melakukan lemmatization untuk mengubah kata menjadi bentuk dasar.
+  - Melakukan Augmentasi untuk menangani masalah ketidakseimbangan kelas pada dataset. 
 - **Visualisasi**:
   - **WordCloud**: Membuat word clouds untuk memvisualisasikan kata-kata yang paling sering muncul pada komentar positif dan negatif.
   - **Bar Plot**: Membuat bar plot untuk menunjukkan 10 kata paling sering dalam komentar positif dan negatif.
